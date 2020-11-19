@@ -19,17 +19,19 @@
 """
 
 
-from LotkaVolterraModel import LotkaVolterraModel
-from plot_lotka_volterra_results import plot_lotka_volterra_results
-    
-def main():
-    model = LotkaVolterraModel()
-    results = model.run()
-    plot_lotka_volterra_results(results)
+class Series:
+    def __init__(self,
+        values,
+        label
+    ):
+        self.__values = values
+        self.__label = label
 
-if __name__ == '__main__':
-    main()
+    @property
+    def values(self):
+        return self.__values
+
+    @property
+    def label(self):
+        return self.__label
        
-   
-       
-    

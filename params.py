@@ -37,8 +37,8 @@ MAX_TIME = 50
 # Labels which appear in the legend on the population densities changes over 
 # time sub-plot, and as part of the axes labels in the predators vs. prey
 # sub-plot.
-PREY_LABEL = 'Prey'
 PREDATOR_LABEL = 'Predators'
+PREY_LABEL = 'Prey'
 
 # If True program will print current time, prey and predators to standard
 # output after each iteration of the model. 

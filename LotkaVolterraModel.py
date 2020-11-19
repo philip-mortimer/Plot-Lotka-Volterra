@@ -20,15 +20,17 @@
 
 
 from lotka_volterra_lib import get_new_predators_and_prey
+from Series import Series
 from LotkaVolterraResults import LotkaVolterraResults
 import params as prm
 
+
 class Coefficients:
     def __init__(self, 
-        prey_growth_rate        = prm.PREY_GROWTH_RATE, 
-        predation_rate          = prm.PREDATION_RATE,
-        predator_growth_rate    = prm.PREDATOR_GROWTH_RATE,
-        predator_mortality_rate = prm.PREDATOR_MORTALITY_RATE
+        prey_growth_rate=prm.PREY_GROWTH_RATE, 
+        predation_rate=prm.PREDATION_RATE,
+        predator_growth_rate=prm.PREDATOR_GROWTH_RATE,
+        predator_mortality_rate=prm.PREDATOR_MORTALITY_RATE
     ):
         self.__prey_growth_rate = prey_growth_rate
         self.__predation_rate = predation_rate
@@ -43,6 +45,7 @@ class Coefficients:
     def predation_rate(self):
         return self.__predation_rate
 
+    # Predator growth rate as a result of predation.
     @property
     def predator_growth_rate(self):
         return self.__predator_growth_rate
@@ -54,8 +57,8 @@ class Coefficients:
 
 class InitialPopulationDensities:
     def __init__(self, 
-        predators = prm.INITIAL_PREDATORS,
-        prey      = prm.INITIAL_PREY 
+        predators=prm.INITIAL_PREDATORS,
+        prey=prm.INITIAL_PREY 
     ):
         self.__predators = predators
         self.__prey = prey
@@ -67,12 +70,29 @@ class InitialPopulationDensities:
     @property
     def prey(self):
         return self.__prey
-        
+
+
+class PopulationLabels:
+    def __init__(self,
+        predator_label=prm.PREDATOR_LABEL,
+        prey_label=prm.PREY_LABEL
+    ):
+        self.__predator_label = predator_label
+        self.__prey_label = prey_label
+
+    @property
+    def predator_label(self):
+        return self.__predator_label
+
+    @property
+    def prey_label(self):
+        return self.__prey_label
+
 
 class TimeParams:
     def __init__(self, 
-        max_time = prm.MAX_TIME,
-        dt       = prm.DT
+        max_time=prm.MAX_TIME,
+        dt=prm.DT
     ):
         self.__max_time = max_time
         self.__dt = dt
@@ -89,92 +109,92 @@ class TimeParams:
 
 
 class LotkaVolterraModel:
-   def __init__(self, 
-            coeffs = Coefficients(),
-            initial_population_densities = InitialPopulationDensities(),
-            time_params = TimeParams(),
-            trace_on = prm.TRACE
-   ):
-       self.__coeffs = coeffs
-       self.__prey = initial_population_densities.prey
-       self.__predators = initial_population_densities.predators
-       self.__time_params = time_params
-       self.__trace_on = trace_on
+    def __init__(self, 
+        coeffs=Coefficients(),
+        initial_population_densities=InitialPopulationDensities(),
+        population_labels=PopulationLabels(),
+        time_params=TimeParams(),
+        trace_on=prm.TRACE
+    ):
+        self.__coeffs = coeffs
+        self.__prey = initial_population_densities.prey
+        self.__predators = initial_population_densities.predators
+        self.__population_labels = population_labels
+        self.__time_params = time_params
+        self.__trace_on = trace_on
 
-       self.__curr_time = 0.0
+        self.__curr_time = 0.0
               
-   # Current predator population density.    
-   @property
-   def predators(self):
-      return self.__predators
+    # Current predator population density.    
+    @property
+    def predators(self):
+        return self.__predators
+
+    # Current prey population density.    
+    @property
+    def prey(self):
+        return self.__prey
+
+    @property
+    def curr_time(self):
+        return self.__curr_time
   
-   # Current prey population density.    
-   @property
-   def prey(self):
-      return self.__prey
+    def advance(self):
+        """
+        Advances the model by a time increment equal to the value of the dt
+        property resulting in the update of the predators, prey and curr_time 
+        properties. If the trace_on property is True it will also print the 
+        values of these properties to standard output after it has updated 
+        them. If the model cannot be advanced because curr_time >= max_time
+        then it will return False, otherwise it will return True.
+        """
+        if self.curr_time >= self.__time_params.max_time:
+            return False      
 
-   @property
-   def curr_time(self):
-      return self.__curr_time
+        self.__predators, self.__prey = get_new_predators_and_prey(
+            self.predators, self.prey, self.__time_params.dt, self.__coeffs
+        )     
+        
+        self.__curr_time += self.__time_params.dt
 
-  
-   def advance(self):
-      """
-      Advances the model by a time increment equal to the value of the dt
-      property resulting in the update of the predators, prey and curr_time 
-      properties. If the trace_on property is True it will also print the 
-      values of these properties to standard output after it has updated them.
-      If the model cannot be advanced because curr_time >= max_time
-      then it will return False, otherwise it will return True.
-      """
-      if self.curr_time >= self.__time_params.max_time:
-         return False      
+        self.__trace()
+        return True
 
-      self.__predators, self.__prey = get_new_predators_and_prey(
-                            self.predators, 
-                            self.prey, 
-                            self.__time_params.dt, 
-                            self.__coeffs)     
-      self.__curr_time += self.__time_params.dt
-
-      self.__trace()
-      return True
-
+    def run(self):
+        """
+        Advances the model until the value of the curr_time property is >= 
+        the value of the max_time property. It returns the results of running
+        the model in an instance of the LotkaVolterraResults class.
+        """
+        time_series = [self.curr_time]
+        predator_series = [self.predators]
+        prey_series = [self.prey]
    
-   def run(self):
-      """
-      Advances the model until the value of the curr_time property is >= 
-      the value of the max_time property. It returns the results of running
-      the model in an instance of the LotkaVolterraResults class.
-      """
-      time_series     = [self.curr_time]
-      predator_series = [self.predators]
-      prey_series     = [self.prey]
-   
-      while self.advance():
-         time_series.append(self.curr_time)
-         predator_series.append(self.predators)
-         prey_series.append(self.prey)
-         
-      results = LotkaVolterraResults(time_series,
-                                     predator_series,
-                                     prey_series)
-      return results
+        while self.advance():
+            time_series.append(self.curr_time)
+            predator_series.append(self.predators)
+            prey_series.append(self.prey)
+      
+        predator_series_obj = Series(
+            predator_series, self.__population_labels.predator_label
+        )
+                                    
+        prey_series_obj = Series(
+            prey_series, self.__population_labels.prey_label
+        )
+      
+        results = LotkaVolterraResults(
+            time_series, predator_series_obj, prey_series_obj
+        )
+        return results
 
-
-   @property
-   def trace_on(self):
-      return self.__trace_on
-
-   @trace_on.setter
-   def trace_on(self, value):
-      self.__trace_on = value
-
-    
-   def __trace(self):
-      if self.__trace_on:
-         print("time={:g}, prey={:g}, predators={:g}".format(
-                 self.__curr_time, self.prey, self.predators))
+    def __trace(self):
+        if self.__trace_on:
+            print(
+                "time={:g}, prey={:g}, predators={:g}".format(
+                    self.__curr_time, self.prey, self.predators
+                )
+            )
 
       
         

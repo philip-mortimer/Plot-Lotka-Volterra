@@ -18,6 +18,7 @@
     <https://www.gnu.org/licenses/>.
 """
 
+
 class LotkaVolterraResults:
    def __init__(self, 
                 time_series,
