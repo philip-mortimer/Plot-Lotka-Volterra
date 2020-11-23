@@ -20,10 +20,11 @@
 
 
 class Series:
-    def __init__(self,
-        values,
-        label
-    ):
+    """
+    Series of numeric values with a text label that names or describes
+    the series. 
+    """
+    def __init__(self, values, label):
         self.__values = values
         self.__label = label
 

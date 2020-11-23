@@ -11,7 +11,8 @@ The second sub-plot is a phase-space plot which shows predator population
 densities against prey population densities.
 
 The parameters for the model (e.g. the prey growth rate) and other settings 
-for the program are in the file **params.py**.
+for the program are specified by the contants near the top of the file
+**main.py**.
 
 ## How to run the program
 
