@@ -18,37 +18,29 @@
     <https://www.gnu.org/licenses/>.
 """
 
-import params as prm
-import lotka_volterra_model as lv
-from plot_lotka_volterra_results import plot_lotka_volterra_results
-    
-def main():
-    initial_population_densities = lv.InitialPopulationDensities(
-        prm.INITIAL_PREDATORS, prm.INITIAL_PREY
-    )
+# Initial population densities.
+INITIAL_PREDATORS = 1
+INITIAL_PREY = 3
 
-    coeffs = lv.Coefficients(
-        prm.PREY_GROWTH_RATE, prm.PREDATION_RATE, prm.PREDATOR_GROWTH_RATE,
-        prm.PREDATOR_MORTALITY_RATE
-    )
+# Model coefficients.
+PREDATION_RATE = 0.2
+PREDATOR_GROWTH_RATE = 0.1 # Growth as a result of predation.
+PREDATOR_MORTALITY_RATE = 0.2
+PREY_GROWTH_RATE = 0.5
 
-    time_params = lv.TimeParams(prm.DT, prm.RUN_TIME)
+# Length of time interval for each iteration of the model.
+DT = 0.001
 
-    population_labels = lv.PopulationLabels(
-        prm.PREDATOR_LABEL, prm.PREY_LABEL
-    )
+# How long (in model time) the model should run. The model will advance in
+# time intervals of DT until the sum of the time intervals >= RUN_TIME.
+RUN_TIME = 50
 
-    model = lv.Model(
-        initial_population_densities, coeffs, time_params, population_labels, 
-        prm.TRACE
-    )
+# Labels which appear in the legend on the population densities changes over 
+# time sub-plot, and as part of the axes labels in the predators vs. prey
+# sub-plot.
+PREDATOR_LABEL = 'Predators'
+PREY_LABEL = 'Prey'
 
-    results = model.run()
-    plot_lotka_volterra_results(results)
-
-if __name__ == '__main__':
-    main()
-       
-   
-       
-    
+# If True the program will print current time, prey and predators to standard
+# output after each iteration of the model. 
+TRACE = False
